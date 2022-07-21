@@ -4,7 +4,7 @@ kind: ClusterSPIFFEID
 metadata:
   name: ingress
 spec:
-  spiffeIDTemplate: spiffe://example.org/ingress/{{ .PodMeta.Name }}
+  spiffeIDTemplate: spiffe://cluster.local/ingress/{{ .PodMeta.Name }}
   dnsNameTemplates:
     - "{{ .PodMeta.Labels.app }}.{{ .PodMeta.Namespace }}.svc"
     - "{{ .PodMeta.Name }}"
@@ -22,7 +22,7 @@ kind: ClusterSPIFFEID
 metadata:
   name: workloads
 spec:
-  spiffeIDTemplate: spiffe://example.org/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}
+  spiffeIDTemplate: spiffe://cluster.local/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}
   dnsNameTemplates:
     - "{{ .PodMeta.Name }}"
     - "{{ .PodMeta.Labels.app }}.{{ .PodMeta.Namespace }}.svc"

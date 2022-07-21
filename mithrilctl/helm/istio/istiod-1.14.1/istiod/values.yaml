@@ -95,7 +95,7 @@ sidecarInjectorWebhook:
   # This enables injection of sidecar in all namespaces,
   # with the exception of namespaces with "istio-injection:disabled" annotation
   # Only one environment should have this enabled.
-  enableNamespacesByDefault: true
+  enableNamespacesByDefault: false
 
   # Enable objectSelector to filter out pods with no need for sidecar before calling istiod.
   # It is enabled by default as the minimum supported Kubernetes version is 1.15+
@@ -211,7 +211,7 @@ meshConfig:
 
   # The trust domain corresponds to the trust root of a system
   # Refer to https://github.com/spiffe/spiffe/blob/master/standards/SPIFFE-ID.md#21-trust-domain
-  trustDomain: "example.org"
+  trustDomain: "cluster.local"
 
   # TODO: the intent is to eventually have this enabled by default when security is used.
   # It is not clear if user should normally need to configure - the metadata is typically

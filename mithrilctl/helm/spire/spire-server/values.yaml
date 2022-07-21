@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 namespace: spire
 name: spire-server
-trustDomain: "example.org"
+trustDomain: "cluster.local"
 clusterName: demo-cluster
 tag: spire-server:1.1.1
 
@@ -12,7 +12,7 @@ configmaps:
     bundleName: trust-bundle
   serverConfig:
     socketPath: "/run/spire/sockets/api.sock"
-    trustDomain: "example.org"
+    trustDomain: "cluster.local"
     federates: false
     federation:
         bundleEndpoint:

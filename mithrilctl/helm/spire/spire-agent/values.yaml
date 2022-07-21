@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 namespace: spire
 name: spire-agent
-trustDomain: "example.org"
+trustDomain: "cluster.local"
 clusterName: demo-cluster
 tag: spire-agent:1.1.1
 socketPath: "/run/secrets/workload-spiffe-uds"
@@ -13,7 +13,7 @@ configmaps:
     bundleName: trust-bundle
   agentConfig:
     socketPath: "/run/secrets/workload-spiffe-uds/socket"
-    trustDomain: "example.org"
+    trustDomain: "cluster.local"
     federates: false
     notifier:
       configMap: "trust-bundle"

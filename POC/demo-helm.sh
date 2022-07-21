@@ -4,10 +4,10 @@ DIR="../mithrilctl/helm"
 
 ./create-kind-cluster.sh
 
-helm install -f "$DIR"/spire/spire-server/values.yaml spire-server "$DIR"/spire/spire-server/
+helm upgrade --install -f "$DIR"/spire/spire-server/values.yaml spire-server "$DIR"/spire/spire-server/
 kubectl rollout status statefulset -n spire spire-server
 
-helm install -f "$DIR"/spire/spire-agent/values.yaml spire-agent "$DIR"/spire/spire-agent/
+helm upgrade --install -f "$DIR"/spire/spire-agent/values.yaml spire-agent "$DIR"/spire/spire-agent/
 kubectl rollout status daemonset -n spire spire-agent
 
 helm upgrade --install -f "$DIR"/istio/base-1.14.1/base/values.yaml base "$DIR"/istio/base-1.14.1/base/
