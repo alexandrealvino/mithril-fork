@@ -28,6 +28,7 @@
 {{- range $index, $container := .Spec.Containers }}{{ if not (eq $container.Name "istio-proxy") }}{{ $containers = append $containers $container.Name }}{{end}}{{- end}}
 metadata:
   labels:
+    spireSpiffeid: workloads
     security.istio.io/tlsMode: {{ index .ObjectMeta.Labels `security.istio.io/tlsMode` | default "istio"  | quote }}
     service.istio.io/canonical-name: {{ index .ObjectMeta.Labels `service.istio.io/canonical-name` | default (index .ObjectMeta.Labels `app.kubernetes.io/name`) | default (index .ObjectMeta.Labels `app`) | default .DeploymentMeta.Name  | quote }}
     service.istio.io/canonical-revision: {{ index .ObjectMeta.Labels `service.istio.io/canonical-revision` | default (index .ObjectMeta.Labels `app.kubernetes.io/version`) | default (index .ObjectMeta.Labels `version`) | default "latest"  | quote }}
@@ -407,8 +408,9 @@ spec:
       {{ end }}
       {{- end }}
   volumes:
-  - emptyDir:
-    name: workload-socket
+  - name: workload-socket
+    csi:
+      driver: csi.spiffe.io
   {{- if eq .Values.global.caName "GkeWorkloadCertificate" }}
   - name: gke-workload-certificate
     csi:

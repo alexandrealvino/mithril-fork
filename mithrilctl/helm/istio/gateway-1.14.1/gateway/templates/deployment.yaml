@@ -87,6 +87,10 @@ spec:
             name: http-envoy-prom
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: workload-socket
+          csi:
+            driver: csi.spiffe.io
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -99,7 +103,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      volumes:
-        - name: workload-socket
-          csi:
-            driver: "csi.spiffe.io"
