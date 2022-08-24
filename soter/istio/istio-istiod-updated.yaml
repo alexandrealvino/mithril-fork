@@ -255,7 +255,6 @@ data:
         {{- range $index, $container := .Spec.Containers }}{{ if not (eq $container.Name "istio-proxy") }}{{ $containers = append $containers $container.Name }}{{end}}{{- end}}
         metadata:
           labels:
-            spireSpiffeid: workloads
             security.istio.io/tlsMode: {{ index .ObjectMeta.Labels `security.istio.io/tlsMode` | default "istio"  | quote }}
             service.istio.io/canonical-name: {{ index .ObjectMeta.Labels `service.istio.io/canonical-name` | default (index .ObjectMeta.Labels `app.kubernetes.io/name`) | default (index .ObjectMeta.Labels `app`) | default .DeploymentMeta.Name  | quote }}
             service.istio.io/canonical-revision: {{ index .ObjectMeta.Labels `service.istio.io/canonical-revision` | default (index .ObjectMeta.Labels `app.kubernetes.io/version`) | default (index .ObjectMeta.Labels `version`) | default "latest"  | quote }}
@@ -1743,7 +1742,7 @@ kind: ClusterSPIFFEID
 metadata:
   name: ingress
 spec:
-  spiffeIDTemplate: spiffe://cluster.local/ingress/{{ .PodMeta.Name }}
+  spiffeIDTemplate: spiffe://cluster.local/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}
   dnsNameTemplates:
     - "{{ .PodMeta.Labels.app }}.{{ .PodMeta.Namespace }}.svc"
     - "{{ .PodMeta.Name }}"
@@ -1760,7 +1759,7 @@ spec:
 apiVersion: spire.spiffe.io/v1alpha1
 kind: ClusterSPIFFEID
 metadata:
-  name: workloads
+  name: default
 spec:
   spiffeIDTemplate: spiffe://cluster.local/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}
   dnsNameTemplates:
@@ -1773,7 +1772,25 @@ spec:
     - k8s:pod-image-count:2
   podSelector:
     matchLabels:
-      spireSpiffeid: workloads
+      spireSpiffeid: default
+---
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: telemetry
+spec:
+  spiffeIDTemplate: spiffe://cluster.local/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}
+  dnsNameTemplates:
+    - "{{ .PodMeta.Name }}"
+    - "{{ .PodMeta.Labels.app }}.{{ .PodMeta.Namespace }}.svc"
+  workloadSelectorTemplates:
+    - k8s:ns:{{ .PodMeta.Namespace }}
+    - k8s:sa:{{ .PodSpec.ServiceAccountName }}
+    - k8s:node-name:{{ .NodeMeta.Name }}
+    - k8s:pod-image-count:3
+  podSelector:
+    matchLabels:
+      spireSpiffeid: telemetry
 ---
 # Source: istiod/templates/telemetryv2_1.11.yaml
 # Note: http stats filter is wasm enabled only in sidecars.

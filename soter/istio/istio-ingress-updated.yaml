@@ -8,7 +8,7 @@ metadata:
   namespace: istio-system
   labels:
     helm.sh/chart: gateway-1.14.1
-    app: ingressgateway
+    app: istio-ingressgateway
     istio: ingressgateway
     app.kubernetes.io/version: "1.14.1"
     app.kubernetes.io/managed-by: Helm
@@ -47,7 +47,7 @@ metadata:
   namespace: istio-system
   labels:
     helm.sh/chart: gateway-1.14.1
-    app: ingressgateway
+    app: istio-ingressgateway
     istio: ingressgateway
     app.kubernetes.io/version: "1.14.1"
     app.kubernetes.io/managed-by: Helm
@@ -70,18 +70,18 @@ spec:
       protocol: TCP
       targetPort: 443
   selector:
-    app: ingressgateway
+    app: istio-ingressgateway
     istio: ingressgateway
 ---
 # Source: gateway/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ingressgateway
+  name: istio-ingressgateway
   namespace: istio-system
   labels:
     helm.sh/chart: gateway-1.14.1
-    app: ingressgateway
+    app: istio-ingressgateway
     istio: ingressgateway
     app.kubernetes.io/version: "1.14.1"
     app.kubernetes.io/managed-by: Helm
@@ -91,7 +91,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: ingressgateway
+      app: istio-ingressgateway
       istio: ingressgateway
   template:
     metadata:
@@ -104,7 +104,7 @@ spec:
       labels:
         spireSpiffeid: ingress
         sidecar.istio.io/inject: "true"
-        app: ingressgateway
+        app: istio-ingressgateway
         istio: ingressgateway
     spec:
       serviceAccountName: ingressgateway
@@ -149,7 +149,7 @@ metadata:
   namespace: istio-system
   labels:
     helm.sh/chart: gateway-1.14.1
-    app: ingressgateway
+    app: istio-ingressgateway
     istio: ingressgateway
     app.kubernetes.io/version: "1.14.1"
     app.kubernetes.io/managed-by: Helm
