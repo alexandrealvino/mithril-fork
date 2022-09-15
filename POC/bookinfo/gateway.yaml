@@ -13,22 +13,22 @@ spec:
       hosts:
         - "*"
 ---
-#apiVersion: networking.istio.io/v1alpha3
-#kind: Gateway
-#metadata:
-#  name: bookinfo-gateway-mtls
-#spec:
-#  selector:
-#    istio: ingressgateway
-#  servers:
-#    - port:
-#        number: 7080
-#        name: https
-#        protocol: HTTPS
-#      tls:
-#        mode: ISTIO_MUTUAL
-#      hosts:
-#        - "*"
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: bookinfo-gateway-mtls
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 7080
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: ISTIO_MUTUAL
+      hosts:
+        - "*"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -39,7 +39,7 @@ spec:
     - "*"
   gateways:
     - bookinfo-gateway
-#    - bookinfo-gateway-mtls
+    - bookinfo-gateway-mtls
   http:
     - match:
         - uri:
