@@ -23,7 +23,7 @@ data:
       socket_path = "/run/secrets/workload-spiffe-uds/socket"
       trust_bundle_path = "/run/spire/bundle/root-cert.pem"
       trust_domain = "cluster.local"
-      
+    
     }
 
     plugins {
@@ -119,7 +119,7 @@ spec:
           args: ["-t", "30", "spire-server:8081"]
       containers:
         - name: spire-agent
-          image: gcr.io/spiffe-io/spire-agent:1.3.2
+          image: gcr.io/spiffe-io/spire-agent:1.4.1
           args: ["-config", "/run/spire/config/agent.conf"]
           volumeMounts:
             - name: spire-config
@@ -147,7 +147,7 @@ spec:
             periodSeconds: 5
         # This is the container which runs the SPIFFE CSI driver.
         - name: spiffe-csi-driver
-          image: ghcr.io/spiffe/spiffe-csi-driver:0.1.0
+          image: ghcr.io/spiffe/spiffe-csi-driver:0.2.0
           imagePullPolicy: IfNotPresent
           args: [
             "-workload-api-socket-dir", "/spire-agent-socket",
@@ -254,4 +254,3 @@ spec:
   # We only support ephemeral volumes. Note that this requires Kubernetes 1.16
   volumeLifecycleModes: # added in Kubernetes 1.16, this field is beta
     - Ephemeral
-

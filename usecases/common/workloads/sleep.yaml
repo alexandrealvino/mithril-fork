@@ -2,13 +2,11 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: sleep
-  namespace: ccs-system
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: sleep
-  namespace: ccs-system
   labels:
     app: sleep
     service: sleep
@@ -23,7 +21,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sleep
-  namespace: ccs-system
 spec:
   replicas: 1
   selector:
@@ -33,9 +30,7 @@ spec:
     metadata:
       labels:
         app: sleep
-      annotations:
-        deployment.kubernetes.io/desired-replicas: "1"
-        deployment.kubernetes.io/max-replicas: "2"
+        spireSpiffeid: default
     spec:
       terminationGracePeriodSeconds: 0
       serviceAccountName: sleep

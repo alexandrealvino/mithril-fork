@@ -201,7 +201,7 @@ data:
         },
         "rewriteAppHTTPProbe": true,
         "templates": {
-          "spire": "spec:\n  containers:\n  - name: istio-proxy\n  volumes:\n    - name: workload-socket\n      csi:\n        driver: \"csi.spiffe.io\"\n"
+          "spire": "spec:\n  containers:\n  - name: istio-proxy\n  volumes:\n    - name: workload-socket\n      csi:\n        driver: \"csi.spiffe.io\"\n    readOnly: true\n"
         }
       }
     }
@@ -637,6 +637,7 @@ data:
           - name: workload-socket
             csi:
               driver: csi.spiffe.io
+              readOnly: true
           {{- if eq .Values.global.caName "GkeWorkloadCertificate" }}
           - name: gke-workload-certificate
             csi:
@@ -881,6 +882,7 @@ data:
           - name: workload-socket
             csi:
               driver: csi.spiffe.io
+              readOnly: true
           {{- if eq .Values.global.caName "GkeWorkloadCertificate" }}
           - name: gke-workload-certificate
             csi:
@@ -1213,6 +1215,7 @@ data:
           - name: workload-socket
             csi:
               driver: csi.spiffe.io
+              readOnly: true
           - emptyDir: {}
             name: workload-certs
           # UDS channel between istioagent and gRPC client for XDS/SDS
@@ -1258,6 +1261,7 @@ data:
             - name: workload-socket
               csi:
                 driver: "csi.spiffe.io"
+                readOnly: true
 ---
 # Source: istiod/templates/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -3130,4 +3134,5 @@ webhooks:
             - "true"
         - key: istio.io/rev
           operator: DoesNotExist
+
 
