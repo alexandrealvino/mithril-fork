@@ -145,6 +145,54 @@ spec:
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
+      volumes:
+        - name: spire-config
+          configMap:
+            name: spire-agent
+        - name: spire-bundle
+          configMap:
+            name: trust-bundle
+        - name: spire-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  path: spire-agent
+                  expirationSeconds: 7200
+                  audience: spire-server
+        # This volume is used to share the workload api socket between the
+        # CSI driver and SPIRE agent
+        - name: spire-agent-socket-dir
+          hostPath:
+            path: /run/spire/socket-dir
+            type: DirectoryOrCreate
+---
+# Source: spire-agent/templates/csi-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spiffe-csi-driver
+  namespace: spire
+---
+# Source: spire-agent/templates/spiffe-csi-driver.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: spiffe-csi-driver
+  namespace: spire
+  labels:
+    app: spiffe-csi-driver
+spec:
+  selector:
+    matchLabels:
+      app: spiffe-csi-driver
+  template:
+    metadata:
+      namespace: spire
+      labels:
+        app: spiffe-csi-driver
+    spec:
+      serviceAccountName: spiffe-csi-driver
+      containers:
         # This is the container which runs the SPIFFE CSI driver.
         - name: spiffe-csi-driver
           image: ghcr.io/spiffe/spiffe-csi-driver:0.2.0
@@ -175,6 +223,10 @@ spec:
               mountPropagation: Bidirectional
               name: mountpoint-dir
           securityContext:
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - all
             privileged: true
         # This container runs the CSI Node Driver Registrar which takes care
         # of all the little details required to register a CSI driver with
@@ -195,19 +247,6 @@ spec:
             - name: kubelet-plugin-registration-dir
               mountPath: /registration
       volumes:
-        - name: spire-config
-          configMap:
-            name: spire-agent
-        - name: spire-bundle
-          configMap:
-            name: trust-bundle
-        - name: spire-token
-          projected:
-            sources:
-              - serviceAccountToken:
-                  path: spire-agent
-                  expirationSeconds: 7200
-                  audience: spire-server
         # This volume is used to share the workload api socket between the
         # CSI driver and SPIRE agent
         - name: spire-agent-socket-dir
@@ -254,3 +293,4 @@ spec:
   # We only support ephemeral volumes. Note that this requires Kubernetes 1.16
   volumeLifecycleModes: # added in Kubernetes 1.16, this field is beta
     - Ephemeral
+---
