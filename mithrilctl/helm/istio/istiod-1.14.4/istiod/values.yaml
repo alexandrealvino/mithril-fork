@@ -22,7 +22,10 @@ pilot:
       cpu: 500m
       memory: 2048Mi
 
-  env: {}
+  env: {
+    ENABLE_CA_SERVER: "true",
+    PILOT_ENABLE_XDS_IDENTITY_CHECK: "true",
+  }
 
   cpu:
     targetAverageUtilization: 80
@@ -107,7 +110,9 @@ sidecarInjectorWebhook:
   # Then starting a pod with the `inject.istio.io/templates: hello` annotation, will result in the pod
   # being injected with the hello=world labels.
   # This is intended for advanced configuration only; most users should use the built in template
-  templates: {}
+  templates: {
+    spire: "spec:\n  containers:\n  - name: istio-proxy\n  volumes:\n    - name: workload-socket\n      csi:\n        driver: \"csi.spiffe.io\"\n        readOnly: true\n"
+  }
 
   # Default templates specifies a set of default templates that are used in sidecar injection.
   # By default, a template `sidecar` is always provided, which contains the template of default sidecar. 
@@ -122,7 +127,7 @@ sidecarInjectorWebhook:
   #         hello: world
   #
   # defaultTemplates: ["sidecar", "hello"]
-  defaultTemplates: []
+  defaultTemplates: ["sidecar", "spire"]
 istiodRemote:
   # Sidecar injector mutating webhook configuration clientConfig.url value.
   # For example: https://$remotePilotAddress:15017/inject

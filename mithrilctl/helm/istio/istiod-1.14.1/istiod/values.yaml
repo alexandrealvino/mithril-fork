@@ -117,7 +117,7 @@ sidecarInjectorWebhook:
   # being injected with the hello=world labels.
   # This is intended for advanced configuration only; most users should use the built in template
   templates: {
-    spire: "spec:\n  containers:\n  - name: istio-proxy\n  volumes:\n    - name: workload-socket\n      csi:\n        driver: \"csi.spiffe.io\"\n"
+    spire: "spec:\n  containers:\n  - name: istio-proxy\n  volumes:\n    - name: workload-socket\n      csi:\n        driver: \"csi.spiffe.io\"\n        readOnly: true\n"
   }
 
   # Default templates specifies a set of default templates that are used in sidecar injection.

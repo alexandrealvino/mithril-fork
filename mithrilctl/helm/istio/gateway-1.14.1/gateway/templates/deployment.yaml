@@ -91,6 +91,7 @@ spec:
         - name: workload-socket
           csi:
             driver: csi.spiffe.io
+            readOnly: true
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
