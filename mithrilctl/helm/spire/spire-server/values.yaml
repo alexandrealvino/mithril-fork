@@ -3,52 +3,88 @@
 # Declare variables to be passed into your templates.
 namespace: spire
 name: spire-server
+serviceAccount: spire-server
 trustDomain: "cluster.local"
 clusterName: demo-cluster
-tag: spire-server:1.1.1
+replicas: 2
+images:
+  spireServer:
+    image: gcr.io/spiffe-io/spire-server:1.4.1
+    imagePullPolicy: "IfNotPresent"
+  spireControllerManager:
+    image: ghcr.io/spiffe/spire-controller-manager:0.2.1
+    imagePullPolicy: "IfNotPresent"
 
 configmaps:
   notifier:
     bundleName: trust-bundle
   serverConfig:
+    bindAddress: "0.0.0.0"
+    bindPort: "8081"
     socketPath: "/run/spire/sockets/api.sock"
     trustDomain: "cluster.local"
+    dataDir: "/run/spire/server/data"
+    logLevel: "DEBUG"
+    caKeyType: "rsa-4096"
+    defaultSvidTTL: "1h"
+
     federates: false
     federation:
         bundleEndpoint:
-          address: 0.0.0.0
-          port: 8443
+          address: "0.0.0.0"
+          port: "8443"
+          withAcme: false
+          acme:
+            directoryUrl: ""
+            domainName: ""
+            email: ""
+            tosAccepted: ""
         federations:
           - federatesWith: "domain.test"
-            bundleEndpointUrl: https://192.168.0.16:4002
+            bundleEndpointUrl: "https://192.168.0.16:4002"
             bundleEndpointProfile:
-              profile: https_spiffe
-              endpointSpiffeId: spiffe://domain.test/spire/server
-    ttl: "1h"
+              profile: "https_spiffe"
+              endpointSpiffeId: "spiffe://domain.test/spire/server"
+
+    caSubject:
+      country: "US"
+      organization: "SPIFFE"
+      commonName: ""
+
+    plugins:
+      dataStore: "sql"
+      pluginData:
+        dataBaseType: "sqlite3"
+        connectionString: "/run/spire/data/datastore.sqlite3"
+
+    nodeAttestor:
+      attestor: "k8s_psat"
+      pluginData:
+        clusters:
+          - clusterName: "demo-cluster"
+            useTokenReviewApiValidation: "true"
+            serviceAccountAllowList: "spire:spire-agent"
+
+    keyManager:
+      type: "disk"
+      pluginData:
+        keysPath: "/run/spire/data/keys.json"
+
     notifier:
+      type: "k8sbundle"
       configMap: "trust-bundle"
       configMapKey: "root-cert.pem"
 
-replicaCount: 1
-
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+    healthChecks:
+      listenerEnabled: true
+      bindAddress: "0.0.0.0"
+      bindPort: "8080"
+      livePath: "/live"
+      readyPath: "/ready"
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
 
 podAnnotations: {}
 
@@ -63,6 +99,7 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+# services
 serviceSpire:
   type: NodePort
   ports:
@@ -70,7 +107,6 @@ serviceSpire:
      port: 8081
      targetPort: 8081
      protocol: TCP
-
 serviceBundleEndpoint:
   name: spire-server-bundle-endpoint
   type: NodePort
@@ -78,7 +114,6 @@ serviceBundleEndpoint:
     - name: api
       port: 8443
       protocol: TCP
-
 serviceControllerWebhook:
   name: spire-controller-manager-webhook-service
   type: NodePort
@@ -87,26 +122,9 @@ serviceControllerWebhook:
       protocol: TCP
       targetPort: 9443
 
-#  selector:
-#    app: spire-server
-
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-resources: {}
+resources:
+  requests:
+    storage: "1Gi"
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
