@@ -88,6 +88,25 @@ data:
           config_map_key = "{{ .Values.configmaps.serverConfig.notifier.configMapKey }}"
         }
       }
+
+      {{ if eq .Values.configmaps.serverConfig.withUpstreamAuthority true }}
+      UpstreamAuthority "{{ .Values.configmaps.serverConfig.upstreamAuthority.type }}" {
+        plugin_data {
+          {{ if eq .Values.configmaps.serverConfig.upstreamAuthority.type "spire" }}
+          server_address = "{{ .Values.configmaps.serverConfig.upstreamAuthority.serverAddress }}",
+          server_port = "{{ .Values.configmaps.serverConfig.upstreamAuthority.serverPort }}",
+          workload_api_socket = "{{ .Values.configmaps.serverConfig.upstreamAuthority.workloadApiSocket }}"
+          {{ end }}
+          {{ if eq .Values.configmaps.serverConfig.upstreamAuthority.type "disk" }}
+          cert_file_path = "{{ .Values.configmaps.serverConfig.upstreamAuthority.certFilePath }}",
+          key_file_path = "{{ .Values.configmaps.serverConfig.upstreamAuthority.keyFilePath }}",
+          {{ if not empty .Values.configmaps.serverConfig.upstreamAuthority.bundleFilePath }}
+          bundle_file_path = "{{ .Values.configmaps.serverConfig.upstreamAuthority.bundleFilePath }}"
+          {{ end }}
+          {{ end }}
+        }
+      }
+      {{ end }}
     }
 
     health_checks {
