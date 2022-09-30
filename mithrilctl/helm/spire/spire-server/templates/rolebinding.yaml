@@ -2,25 +2,30 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ .Values.roles.clusterRoleBinding.name }}
-  namespace: {{ .Values.namespace }}
+  name: spire-server-cluster-role-binding
+  namespace: spire
 subjects:
-{{ .Values.roles.clusterRoleBinding.subjects | toYaml | indent 2 }}
+  - kind: ServiceAccount
+    name: {{ .Values.serviceAccount }}
+    namespace: {{ .Values.namespace }}
 roleRef:
-  kind: {{ .Values.roles.clusterRoleBinding.roleRef.kind }}
-  name: {{ .Values.roles.clusterRoleBinding.roleRef.name }}
-  apiGroup: {{ .Values.roles.clusterRoleBinding.roleRef.apiGroup }}
+  kind: ClusterRole
+  name: spire-server-cluster-role
+  apiGroup: rbac.authorization.k8s.io
 ---
 # RoleBinding granting the spire-server-role to the SPIRE server
 # service account.
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{ .Values.roles.roleBinding.name }}
+  name: spire-server-role-binding
   namespace: {{ .Values.namespace }}
 subjects:
-{{ .Values.roles.roleBinding.subjects | toYaml | indent 2 }}
+  - kind: ServiceAccount
+    name: {{ .Values.serviceAccount }}
+    namespace: {{ .Values.namespace }}
 roleRef:
-  kind: {{ .Values.roles.roleBinding.roleRef.kind }}
-  name: {{ .Values.roles.roleBinding.roleRef.name }}
-  apiGroup: {{ .Values.roles.roleBinding.roleRef.apiGroup }}
+  kind: Role
+  name: spire-server-role
+  apiGroup: rbac.authorization.k8s.io
+---

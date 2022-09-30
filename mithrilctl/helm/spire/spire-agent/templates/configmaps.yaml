@@ -7,55 +7,67 @@ metadata:
 data:
   agent.conf: |
     agent {
-      data_dir = "/run/spire"
-      log_level = "DEBUG"
-      server_address = "spire-server"
-      server_port = "8081"
+      data_dir = "{{ .Values.configmaps.agentConfig.dataDir }}"
+      log_level = "{{ .Values.configmaps.agentConfig.logLevel }}"
+      server_address = "{{ .Values.configmaps.agentConfig.serverAddress }}"
+      server_port = "{{ .Values.configmaps.agentConfig.serverPort }}"
       socket_path = "{{ .Values.configmaps.agentConfig.socketPath }}"
       trust_bundle_path = "{{ .Values.configmaps.agentConfig.notifier.trustBundlePath }}"
       trust_domain = "{{ .Values.configmaps.agentConfig.trustDomain }}"
       {{ if eq .Values.configmaps.agentConfig.federates true }}
 
       sds = {
-        default_bundle_name = "null"
-        default_all_bundles_name = "ROOTCA"
+        {{ if not empty .Values.configmaps.agentConfig.sds.defaultSvidName }}
+        default_svid_name = "{{ .Values.configmaps.agentConfig.sds.defaultSvidName }}"
+        {{ end }}
+        {{ if not empty .Values.configmaps.agentConfig.sds.defaultBundleName }}
+        default_bundle_name = "{{ .Values.configmaps.agentConfig.sds.defaultBundleName }}"
+        {{ end }}
+        {{ if not empty .Values.configmaps.agentConfig.sds.defaultAllBundlesName }}
+        default_all_bundles_name = "{{ .Values.configmaps.agentConfig.sds.defaultAllBundlesName }}"
+        {{ end }}
+        {{ if not empty .Values.configmaps.agentConfig.sds.disableSpiffeCertValidation }}
+        disable_spiffe_cert_validation = "{{ .Values.configmaps.agentConfig.sds.disableSpiffeCertValidation }}"
+        {{ end }}
       }
-
       {{ end }}
     }
 
     plugins {
-      NodeAttestor "k8s_psat" {
+      NodeAttestor "{{ .Values.configmaps.agentConfig.plugins.nodeAttestor.type }}" {
         plugin_data {
           # NOTE: Change this to your cluster name
           cluster = "{{ .Values.clusterName }}"
         }
       }
 
-      KeyManager "memory" {
-        plugin_data {
-        }
-      }
-
-      WorkloadAttestor "k8s" {
+      {{ range $index, $member := .Values.configmaps.agentConfig.plugins.wokloadAttestors }}
+      WorkloadAttestor "{{ $member.type }}" {
+        {{ if eq $member.type "k8s" }}
         plugin_data {
           # Defaults to the secure kubelet port by default.
           # Minikube does not have a cert in the cluster CA bundle that
           # can authenticate the kubelet cert, so skip validation.
-          skip_kubelet_verification = true
+          skip_kubelet_verification = {{ $member.pluginData.skipKubeletVerification }}
         }
+        {{ end }}
+        {{ if eq $member.type "unix" }}
+        plugin_data {
+        }
+        {{ end }}
       }
+      {{ end }}
 
-      WorkloadAttestor "unix" {
-          plugin_data {
-          }
+      KeyManager "{{ .Values.configmaps.agentConfig.plugins.keyManager.type }}" {
+        plugin_data {
+        }
       }
     }
 
     health_checks {
-      listener_enabled = true
-      bind_address = "0.0.0.0"
-      bind_port = "8080"
-      live_path = "/live"
-      ready_path = "/ready"
+      listener_enabled = {{ .Values.configmaps.agentConfig.healthChecks.listenerEnabled }}
+      bind_address = "{{ .Values.configmaps.agentConfig.healthChecks.bindAddress }}"
+      bind_port = "{{ .Values.configmaps.agentConfig.healthChecks.bindPort }}"
+      live_path = "{{ .Values.configmaps.agentConfig.healthChecks.livePath }}"
+      ready_path = "{{ .Values.configmaps.agentConfig.healthChecks.readyPath }}"
     }

@@ -41,7 +41,7 @@ data:
         federates_with "{{ $member.federatesWith }}" {
           bundle_endpoint_url = "{{ $member.bundleEndpointUrl }}"
           bundle_endpoint_profile "{{ $member.bundleEndpointProfile.profile }}" {
-            {{ if $member.bundleEndpointProfile.profile eq "https_spiffe" }}
+            {{ if eq $member.bundleEndpointProfile.profile "https_spiffe" }}
             endpoint_spiffe_id = "{{ $member.bundleEndpointProfile.endpointSpiffeId }}"
             {{ else }}
             {}

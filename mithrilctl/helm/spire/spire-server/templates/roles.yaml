@@ -2,17 +2,43 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ .Values.roles.clusterRole.name }}
+  name: spire-server-cluster-role
   namespace: {{ .Values.namespace }}
 rules:
-{{ .Values.roles.clusterRole.rules | toYaml | indent 4 }}
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - get
+      - create
 ---
 # Role for the SPIRE server
-kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
 metadata:
+  name: spire-server-role
   namespace: {{ .Values.namespace }}
-  name: {{ .Values.roles.role.name }}
 rules:
-{{ .Values.roles.role.rules | toYaml | indent 2 }}
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resourceNames:
+      - trust-bundle
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - patch
 ---
