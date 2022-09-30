@@ -15,6 +15,8 @@ images:
     image: ghcr.io/spiffe/spire-controller-manager:0.2.1
     imagePullPolicy: "IfNotPresent"
 
+# spire-server configuration values
+# visit https://github.com/spiffe/spire/blob/v1.4.1/doc/spire_server.md#server-configuration-file for reference
 configmaps:
   notifier:
     bundleName: trust-bundle
@@ -27,7 +29,12 @@ configmaps:
     logLevel: "DEBUG"
     caKeyType: "rsa-4096"
     defaultSvidTTL: "1h"
+    caSubject:
+      country: "US"
+      organization: "SPIFFE"
+      commonName: ""
 
+    # federation configuration values
     federates: false
     federation:
         bundleEndpoint:
@@ -46,42 +53,51 @@ configmaps:
               profile: "https_spiffe"
               endpointSpiffeId: "spiffe://domain.test/spire/server"
 
-    caSubject:
-      country: "US"
-      organization: "SPIFFE"
-      commonName: ""
-
+    # plugin configuration values
     plugins:
-      dataStore: "sql"
-      pluginData:
-        dataBaseType: "sqlite3"
-        connectionString: "/run/spire/data/datastore.sqlite3"
+      # DataStore configuration values
+      dataStore:
+        type: "sql"
+        pluginData:
+          dataBaseType: "sqlite3"
+          connectionString: "/run/spire/data/datastore.sqlite3"
 
-    nodeAttestor:
-      attestor: "k8s_psat"
-      pluginData:
-        clusters:
-          - clusterName: "demo-cluster"
-            useTokenReviewApiValidation: "true"
-            serviceAccountAllowList: "spire:spire-agent"
+      # NodeAttestor configuration values
+      nodeAttestor:
+        attestor: "k8s_psat"
+        pluginData:
+          clusters:
+            - clusterName: "demo-cluster"
+              useTokenReviewApiValidation: "true"
+              serviceAccountAllowList: "spire:spire-agent"
 
-    keyManager:
-      type: "disk"
-      pluginData:
-        keysPath: "/run/spire/data/keys.json"
+      # KeyManager configuration values
+      keyManager:
+        type: "disk"
+        pluginData:
+          keysPath: "/run/spire/data/keys.json"
 
-    notifier:
-      type: "k8sbundle"
-      configMap: "trust-bundle"
-      configMapKey: "root-cert.pem"
+      # Notifier configuration values
+      notifier:
+        type: "k8sbundle"
+        configMap: "trust-bundle"
+        configMapKey: "root-cert.pem"
 
-    withUpstreamAuthority: false
-#    upstreamAuthority:
-#      type: "spire"
-#      serverAddress: "10.0.1.50"
-#      serverPort: "8081"
-#      workloadApiSocket: "/tmp/agent-nestedA.sock"
+      # UpstreamAuthority configuration values
+      withUpstreamAuthority: false
+    #    upstreamAuthority:
+    #      type: "spire"
+    #      serverAddress: "10.0.1.50"
+    #      serverPort: "8081"
+    #      workloadApiSocket: "/tmp/agent-nestedA.sock"
 
+    #    upstreamAuthority:
+    #      type: "disk"
+    #      key_file_path = "/run/spire/data/upstream-ca.key.pem"
+    #      cert_file_path = "/run/spire/data/upstream-ca.pem"
+    #      bundle_file_path = "/run/spire/data/bundle.pem"
+
+    # health_checks configuration values
     healthChecks:
       listenerEnabled: true
       bindAddress: "0.0.0.0"
@@ -139,6 +155,7 @@ tolerations: []
 
 affinity: {}
 
+# roles and rolebindings
 roles:
   clusterRole:
     name: spire-server-cluster-role

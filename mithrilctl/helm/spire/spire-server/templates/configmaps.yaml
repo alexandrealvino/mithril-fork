@@ -54,18 +54,18 @@ data:
     }
 
     plugins {
-      DataStore "{{ .Values.configmaps.serverConfig.plugins.dataStore }}" {
+      DataStore "{{ .Values.configmaps.serverConfig.plugins.dataStore.type }}" {
         plugin_data {
-          database_type = "{{ .Values.configmaps.serverConfig.plugins.pluginData.dataBaseType }}"
-          connection_string = "{{ .Values.configmaps.serverConfig.plugins.pluginData.connectionString }}"
+          database_type = "{{ .Values.configmaps.serverConfig.plugins.dataStore.pluginData.dataBaseType }}"
+          connection_string = "{{ .Values.configmaps.serverConfig.plugins.dataStore.pluginData.connectionString }}"
         }
       }
 
-      NodeAttestor "{{ .Values.configmaps.serverConfig.nodeAttestor.attestor }}" {
+      NodeAttestor "{{ .Values.configmaps.serverConfig.plugins.nodeAttestor.attestor }}" {
         plugin_data {
           clusters = {
             # NOTE: Change this to your cluster name
-            {{ range $index, $member := .Values.configmaps.serverConfig.nodeAttestor.pluginData.clusters }}
+            {{ range $index, $member := .Values.configmaps.serverConfig.plugins.nodeAttestor.pluginData.clusters }}
             "{{ $member.clusterName }}" = {
               use_token_review_api_validation = {{ $member.useTokenReviewApiValidation }}
               service_account_allow_list = ["{{ $member.serviceAccountAllowList }}"]
@@ -75,33 +75,33 @@ data:
         }
       }
 
-      KeyManager "{{ .Values.configmaps.serverConfig.keyManager.type }}" {
+      KeyManager "{{ .Values.configmaps.serverConfig.plugins.keyManager.type }}" {
         plugin_data {
-          keys_path = "{{ .Values.configmaps.serverConfig.keyManager.pluginData.keysPath }}"
+          keys_path = "{{ .Values.configmaps.serverConfig.plugins.keyManager.pluginData.keysPath }}"
         }
       }
 
-      Notifier "{{ .Values.configmaps.serverConfig.notifier.type }}" {
+      Notifier "{{ .Values.configmaps.serverConfig.plugins.notifier.type }}" {
         plugin_data {
           namespace = "{{ .Values.namespace }}"
-          config_map = "{{ .Values.configmaps.serverConfig.notifier.configMap }}"
-          config_map_key = "{{ .Values.configmaps.serverConfig.notifier.configMapKey }}"
+          config_map = "{{ .Values.configmaps.serverConfig.plugins.notifier.configMap }}"
+          config_map_key = "{{ .Values.configmaps.serverConfig.plugins.notifier.configMapKey }}"
         }
       }
 
-      {{ if eq .Values.configmaps.serverConfig.withUpstreamAuthority true }}
-      UpstreamAuthority "{{ .Values.configmaps.serverConfig.upstreamAuthority.type }}" {
+      {{ if eq .Values.configmaps.serverConfig.plugins.withUpstreamAuthority true }}
+      UpstreamAuthority "{{ .Values.configmaps.serverConfig.plugins.upstreamAuthority.type }}" {
         plugin_data {
-          {{ if eq .Values.configmaps.serverConfig.upstreamAuthority.type "spire" }}
-          server_address = "{{ .Values.configmaps.serverConfig.upstreamAuthority.serverAddress }}",
-          server_port = "{{ .Values.configmaps.serverConfig.upstreamAuthority.serverPort }}",
-          workload_api_socket = "{{ .Values.configmaps.serverConfig.upstreamAuthority.workloadApiSocket }}"
+          {{ if eq .Values.configmaps.serverConfig.plugins.upstreamAuthority.type "spire" }}
+          server_address = "{{ .Values.configmaps.serverConfig.plugins.upstreamAuthority.serverAddress }}",
+          server_port = "{{ .Values.configmaps.serverConfig.plugins.upstreamAuthority.serverPort }}",
+          workload_api_socket = "{{ .Values.configmaps.serverConfig.plugins.upstreamAuthority.workloadApiSocket }}"
           {{ end }}
-          {{ if eq .Values.configmaps.serverConfig.upstreamAuthority.type "disk" }}
-          cert_file_path = "{{ .Values.configmaps.serverConfig.upstreamAuthority.certFilePath }}",
-          key_file_path = "{{ .Values.configmaps.serverConfig.upstreamAuthority.keyFilePath }}",
-          {{ if not empty .Values.configmaps.serverConfig.upstreamAuthority.bundleFilePath }}
-          bundle_file_path = "{{ .Values.configmaps.serverConfig.upstreamAuthority.bundleFilePath }}"
+          {{ if eq .Values.configmaps.serverConfig.plugins.upstreamAuthority.type "disk" }}
+          cert_file_path = "{{ .Values.configmaps.serverConfig.plugins.upstreamAuthority.certFilePath }}",
+          key_file_path = "{{ .Values.configmaps.serverConfig.plugins.upstreamAuthority.keyFilePath }}",
+          {{ if not empty .Values.configmaps.serverConfig.plugins.upstreamAuthority.bundleFilePath }}
+          bundle_file_path = "{{ .Values.configmaps.serverConfig.plugins.upstreamAuthority.bundleFilePath }}"
           {{ end }}
           {{ end }}
         }
