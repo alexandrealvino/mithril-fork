@@ -14,10 +14,10 @@ helm upgrade --install -f "$DIR"/spire/spiffe-csi-driver/values.yaml spiffe-csi-
 kubectl rollout status statefulset -n spire spire-server
 kubectl rollout status daemonset -n spire spire-agent
 #
-helm upgrade --install -f "$DIR"/istio/base-1.14.4/base/values.yaml base "$DIR"/istio/base-1.14.4/base/
-helm upgrade --install -f "$DIR"/istio/istiod-1.14.4/istiod/values.yaml istiod "$DIR"/istio/istiod-1.14.4/istiod/ -n istio-system
-helm upgrade --install -f "$DIR"/istio/gateway-1.14.4/gateway/values.yaml ingressgateway "$DIR"/istio/gateway-1.14.4/gateway/ -n istio-system
-
-kubectl -n istio-system rollout status deployment ingressgateway
-kubectl label namespace default istio-injection=enabled --overwrite
+#helm upgrade --install -f "$DIR"/istio/base-1.14.4/base/values.yaml base "$DIR"/istio/base-1.14.4/base/
+#helm upgrade --install -f "$DIR"/istio/istiod-1.14.4/istiod/values.yaml istiod "$DIR"/istio/istiod-1.14.4/istiod/ -n istio-system
+#helm upgrade --install -f "$DIR"/istio/gateway-1.14.4/gateway/values.yaml ingressgateway "$DIR"/istio/gateway-1.14.4/gateway/ -n istio-system
+#
+#kubectl -n istio-system rollout status deployment ingressgateway
+#kubectl label namespace default istio-injection=enabled --overwrite
 #kubectl apply -f bookinfo/bookinfo.yaml
