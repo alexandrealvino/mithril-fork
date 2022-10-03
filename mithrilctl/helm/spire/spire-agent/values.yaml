@@ -6,22 +6,17 @@ name: spire-agent
 serviceAccount: spire-agent
 trustDomain: "cluster.local"
 clusterName: demo-cluster
-tag: spire-agent:1.4.1
 socketPath: "/run/secrets/workload-spiffe-uds"
 images:
   spireAgent:
-    image: gcr.io/spiffe-io/spire-server:1.4.1
-    imagePullPolicy: "IfNotPresent"
-  spiffeCsiDriver:
-    image: ghcr.io/spiffe/spire-controller-manager:0.2.1
-    imagePullPolicy: "IfNotPresent"
-  k8sRegistrar:
-    image: ghcr.io/spiffe/spire-controller-manager:0.2.1
+    image: gcr.io/spiffe-io/spire-agent:1.4.1
     imagePullPolicy: "IfNotPresent"
 
 configmaps:
   notifier:
     bundleName: trust-bundle
+  # spire-agent configuration values
+  # visit https://github.com/spiffe/spire/blob/v1.4.0/doc/spire_agent.md#spire-agent-configuration-reference for reference
   agentConfig:
     dataDir: "/run/spire"
     logLevel: "DEBUG"
@@ -32,6 +27,8 @@ configmaps:
       configMap: "trust-bundle"
       trustBundlePath: "/run/spire/bundle/root-cert.pem"
     trustDomain: "cluster.local"
+
+    # federation configuration values
     federates: false
     sds:
       defaultSvidName: ""
@@ -39,12 +36,15 @@ configmaps:
       defaultAllBundlesName: "ROOTCA"
       disableSpiffeCertValidation: "true"
 
+    # plugin configuration values
     plugins:
+      # NodeAttestor configuration values
       nodeAttestor:
         type: "k8s_psat"
         pluginData:
           cluster: "demo-cluster"
 
+      # WorkloadAttestor configuration values
       wokloadAttestors:
         - type: "k8s"
           pluginData:
@@ -100,33 +100,8 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
-
-#roles:
-#  clusterRole:
-#    name: spire-agent-cluster-role
-#    rules:
-#      - apiGroups: [ "" ]
-#        resources: [ "pods","nodes","nodes/proxy" ]
-#        verbs: [ "get" ]
-#  clusterRoleBinding:
-#    name: spire-agent-cluster-role-binding
-#    subjects:
-#      - kind: ServiceAccount
-#        name: spire-agent
-#        namespace: spire
-#    roleRef:
-#      kind: ClusterRole
-#      name: spire-agent-cluster-role
-#      apiGroup: rbac.authorization.k8s.io

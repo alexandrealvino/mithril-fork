@@ -1,0 +1,52 @@
+# Default values for spire-agent.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+namespace: spire
+name: spiffe-csi-driver
+serviceAccount: spiffe-csi-driver
+images:
+  csiDriver:
+    image: ghcr.io/spiffe/spiffe-csi-driver:0.2.0
+    imagePullPolicy: "IfNotPresent"
+  k8sRegistrar:
+    image: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.4.0
+    imagePullPolicy: "IfNotPresent"
+
+replicaCount: 1
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+   readOnlyRootFilesystem: true
+   privileged: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
